@@ -34,6 +34,7 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: var(--shadow);
+            position: relative;
         }
         h1 {
             text-align: center;
@@ -92,8 +93,7 @@
         }
         li {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
             padding: 12px 15px;
             background-color: var(--card-background);
             border-bottom: 1px solid #eee;
@@ -104,6 +104,12 @@
         }
         li:last-child {
             border-bottom: none;
+        }
+        .list-item-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
         }
         .list-item-content {
             flex-grow: 1;
@@ -123,6 +129,9 @@
             color: var(--text-color);
             width: 100%;
             padding: 5px;
+        }
+        .list-item-content input[type="text"]:disabled {
+            color: #555;
         }
         .item-actions {
             display: none; /* Oculta por padrão */
@@ -145,8 +154,13 @@
         .remove-btn:hover {
             transform: scale(1.1);
         }
-        .add-section {
+        .add-section, .save-btn {
+            display: none;
+        }
+        .logged-in .add-section, .logged-in .save-btn {
             display: flex;
+        }
+        .add-section {
             gap: 10px;
             margin-top: 20px;
         }
@@ -171,7 +185,6 @@
             background-color: #218838;
         }
         .save-btn {
-            display: block;
             width: 100%;
             padding: 15px;
             margin-top: 25px;
@@ -185,6 +198,80 @@
             transition: background-color 0.3s ease;
         }
         .save-btn:hover {
+            background-color: #4a148c;
+        }
+        .observation {
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+        }
+        .observation:disabled {
+            background-color: #f0f0f0;
+            color: #777;
+            cursor: default;
+        }
+        /* Login Modal */
+        .login-modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            padding-top: 60px;
+        }
+        .login-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-btn:hover, .close-btn:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .login-content h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .login-content input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-content button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .login-content button:hover {
             background-color: #4a148c;
         }
     </style>
@@ -214,12 +301,118 @@
     <button class="save-btn" onclick="saveList()">Salvar</button>
 </div>
 
+<div id="loginModal" class="login-modal">
+    <div class="login-content">
+        <span class="close-btn">&times;</span>
+        <h2>Autenticação</h2>
+        <input type="text" id="usernameInput" placeholder="Usuário">
+        <input type="password" id="passwordInput" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+        <p id="loginError" style="color: #dc3545; display: none; margin-top: 10px;">Usuário ou senha inválidos.</p>
+    </div>
+</div>
+
 <script>
     const musicasColetanea = [
-        "003 - CLAMO A TI", "004 - QUANDO TE PROSTRARES", "005 - CLAMANDO ESTOU", "021 - NESTA HORA DE CLAMOR", "034 - QUANDO BUSCAMOS", "055 - SENHOR, MEU DEUS E PAI", "057 - EM FERVENTE ORAÇÃO", "073 - DEUS ESTÁ NO TEMPLO", "077 - VEM, VISITA TUA IGREJA", "079 - DEUS ESTÁ PRESENTE ENTRE PECADORES COMO NÓS", "087 - MEU PECADO RESGATADO", "096 - COM A MINHA VOZ CLAMO AO SENHOR (SALMO 142)", "105 - PERDIDO FOI QUE ELE ME ENCONTROU", "110 - OH! QUÃO CEGO ANDEI E PERDIDO VAGUEI", "121 - TUDO, Ó CRISTO, A TI ENTREGO", "139 - NÃO SEI POR QUE DE DEUS O AMOR", "168 - TU ÉS FIEL, SENHOR", "178 - O DEUS A QUEM SERVIMOS", "180 - ENCONTREI O GRANDE AMOR", "181 - EM TI EU ENCONTRO, Ó DEUS, TODA PAZ", "185 - JESUS, SENHOR, ME CHEGO A TI (EU VENHO COMO ESTOU)", "196 - O GRANDE AMOR DO MEU SENHOR", "197 - HOJE QUERO SOMENTE AGRADECER", "207 - DEUS ENVIOU SEU FILHO AMADO", "212 - RUDE CRUZ", "223 - ONDE ESTÁ O CORDEIRO?", "309 - OH! POR QUE DUVIDAR?", "310 - MESTRE, O MAR SE REVOLTA", "345 - EM NADA PONHO A MINHA FÉ", "347 - FIRME NAS PROMESSAS", "365 - NÃO TEMAS, POIS TE ESCOLHI (QUANDO PELAS ÁGUAS)", "378 - CONFIA E ORA", "379 - ALGEMADO POR UM PESO", "380 - POSSO SENTIR O SEU TOQUE EM MIM (GLORIFICA)", "381 - MEU DEUS VENCE BATALHAS", "382 - JÁ CHEGUEI ATÉ AQUI (VITÓRIAS)", "383 - LÁ ONDE EU NÃO POSSO VER (A ORAÇÃO)", "387 - SONDA-ME, Ó DEUS", "396 - ABBA PAI", "400 - EU QUERO SER, SENHOR AMADO", "401 - COMO TU QUERES", "423 - Ó PASTOR DE ISRAEL", "431 - CRISTO JÁ NOS PREPAROU", "436 - ESPÍRITO DO TRINO DEUS", "444 - DESEJEI ARDENTEMENTE", "447 - SENHOR, GUIA-NOS", "454 - SENHOR, MEU DEUS, O QUE DIREI DE TI? (SAUDE ESPIRITUAL)", "455 - QUANTO MAIS EU TE CONHEÇO (CAMINHO FELIZ)", "461 - TU, Ó SENHOR, TU ÉS TÃO PURO DE OLHOS (AVIVA A TUA OBRA)", "463 - VEM, SENHOR, VIŞITA TUA VINHA", "467 - OS GUERREIROS SE PREPARAM", "470 - NO GETSÊMANI", "473 - MINHA PORÇÃO", "474 - QUEM SOU EU, SENHOR", "475 - AINDA UMA VEZ (AGEU)?", "477 - SEMPRE VOU LEMBRAR", "483 - CHEGOU O TEMPO DE PENSAR", "492 - ELE VOLTARÁ, SIM, ELE VOLTARÁ", "507 - O SOL ESCURECERÁ", "527 - REGOZIJAI-VOS *", "547 - Ó VEM LOGO, JESUS", "552 - PÁTRIA MINHA", "553 - VEM! MARANATA, JESUS VEM!", "557 - ESTE MUNDO JAMAIS PODE ME SEPARAR", "558 - VEM, JESUS CRISTO JÁ VEM", "561 - OUVI COMO QUE A VOZ DE UMA GRANDE MULTIDÃO", "568 - SENHOR, QUEM SÃO AQUELES", "571 - O GRANDE DIA ESTÁ CHEGANDO", "582 - CANTAREI AO AMOR DOS AMORES", "592 - ALELUIA! MUITAS VOZES DE ANJOS", "628 - SANTO É SEU NOME", "649 - TE LOUVAMOS, SENHOR", "651 - AMO AO SENHOR", "666 - TAL QUAL ESTOU", "667 - JUSTO ÉS, SENHOR", "670 - SE PAZ, A MAIS DOCE", "675 - NA ETERNIDADE", "685 - PERFEITO AMOR EU CONHECI", "687 - QUEM É COMO TU?", "700 - ESTEVÃO AVISTOU (EU TAMBÉM QUERO VER)", "704 - SENHOR, SE ESTIVESSES AQUI (LÁZARO)", "705 - GRANDES SÃO, SENHOR, OS TEUS FEITOS! (GRATIDÃO)", "706 - DESTE MUNDO ESCRAVO FUI (GRANDES COISAS FEZ O SENHOR POR NÓS)", "707 - EU CONFIO EM TI, SENHOR", "708 - OUVI NO CÉU (BODAS DO CORDEIRO)", "709 - RESPLANDECE, Ó JERUSALÉM", "710 - O MEU VIVER É CRISTO", "728 - NOSSA GRATIDÃO", "730 - SÓ TU NOS FAZES VENCEDORES"
+        { text: "003 - CLAMO A TI", checked: false, observation: "" },
+        { text: "004 - QUANDO TE PROSTRARES", checked: false, observation: "" },
+        { text: "005 - CLAMANDO ESTOU", checked: false, observation: "" },
+        { text: "021 - NESTA HORA DE CLAMOR", checked: false, observation: "" },
+        { text: "034 - QUANDO BUSCAMOS", checked: false, observation: "" },
+        { text: "055 - SENHOR, MEU DEUS E PAI", checked: false, observation: "" },
+        { text: "057 - EM FERVENTE ORAÇÃO", checked: false, observation: "" },
+        { text: "073 - DEUS ESTÁ NO TEMPLO", checked: false, observation: "" },
+        { text: "077 - VEM, VISITA TUA IGREJA", checked: false, observation: "" },
+        { text: "079 - DEUS ESTÁ PRESENTE ENTRE PECADORES COMO NÓS", checked: false, observation: "" },
+        { text: "087 - MEU PECADO RESGATADO", checked: false, observation: "" },
+        { text: "096 - COM A MINHA VOZ CLAMO AO SENHOR (SALMO 142)", checked: false, observation: "" },
+        { text: "105 - PERDIDO FOI QUE ELE ME ENCONTROU", checked: false, observation: "" },
+        { text: "110 - OH! QUÃO CEGO ANDEI E PERDIDO VAGUEI", checked: false, observation: "" },
+        { text: "121 - TUDO, Ó CRISTO, A TI ENTREGO", checked: false, observation: "" },
+        { text: "139 - NÃO SEI POR QUE DE DEUS O AMOR", checked: false, observation: "" },
+        { text: "168 - TU ÉS FIEL, SENHOR", checked: false, observation: "" },
+        { text: "178 - O DEUS A QUEM SERVIMOS", checked: false, observation: "" },
+        { text: "180 - ENCONTREI O GRANDE AMOR", checked: false, observation: "" },
+        { text: "181 - EM TI EU ENCONTRO, Ó DEUS, TODA PAZ", checked: false, observation: "" },
+        { text: "185 - JESUS, SENHOR, ME CHEGO A TI (EU VENHO COMO ESTOU)", checked: false, observation: "" },
+        { text: "196 - O GRANDE AMOR DO MEU SENHOR", checked: false, observation: "" },
+        { text: "197 - HOJE QUERO SOMENTE AGRADECER", checked: false, observation: "" },
+        { text: "207 - DEUS ENVIOU SEU FILHO AMADO", checked: false, observation: "" },
+        { text: "212 - RUDE CRUZ", checked: false, observation: "" },
+        { text: "223 - ONDE ESTÁ O CORDEIRO?", checked: false, observation: "" },
+        { text: "309 - OH! POR QUE DUVIDAR?", checked: false, observation: "" },
+        { text: "310 - MESTRE, O MAR SE REVOLTA", checked: false, observation: "" },
+        { text: "345 - EM NADA PONHO A MINHA FÉ", checked: false, observation: "" },
+        { text: "347 - FIRME NAS PROMESSAS", checked: false, observation: "" },
+        { text: "365 - NÃO TEMAS, POIS TE ESCOLHI (QUANDO PELAS ÁGUAS)", checked: false, observation: "" },
+        { text: "378 - CONFIA E ORA", checked: false, observation: "" },
+        { text: "379 - ALGEMADO POR UM PESO", checked: false, observation: "" },
+        { text: "380 - POSSO SENTIR O SEU TOQUE EM MIM (GLORIFICA)", checked: false, observation: "" },
+        { text: "381 - MEU DEUS VENCE BATALHAS", checked: false, observation: "" },
+        { text: "382 - JÁ CHEGUEI ATÉ AQUI (VITÓRIAS)", checked: false, observation: "" },
+        { text: "383 - LÁ ONDE EU NÃO POSSO VER (A ORAÇÃO)", checked: false, observation: "" },
+        { text: "387 - SONDA-ME, Ó DEUS", checked: false, observation: "" },
+        { text: "396 - ABBA PAI", checked: false, observation: "" },
+        { text: "400 - EU QUERO SER, SENHOR AMADO", checked: false, observation: "" },
+        { text: "401 - COMO TU QUERES", checked: false, observation: "" },
+        { text: "423 - Ó PASTOR DE ISRAEL", checked: false, observation: "" },
+        { text: "431 - CRISTO JÁ NOS PREPAROU", checked: false, observation: "" },
+        { text: "436 - ESPÍRITO DO TRINO DEUS", checked: false, observation: "" },
+        { text: "444 - DESEJEI ARDENTEMENTE", checked: false, observation: "" },
+        { text: "447 - SENHOR, GUIA-NOS", checked: false, observation: "" },
+        { text: "454 - SENHOR, MEU DEUS, O QUE DIREI DE TI? (SAUDE ESPIRITUAL)", checked: false, observation: "" },
+        { text: "455 - QUANTO MAIS EU TE CONHEÇO (CAMINHO FELIZ)", checked: false, observation: "" },
+        { text: "461 - TU, Ó SENHOR, TU ÉS TÃO PURO DE OLHOS (AVIVA A TUA OBRA)", checked: false, observation: "" },
+        { text: "463 - VEM, SENHOR, VIŞITA TUA VINHA", checked: false, observation: "" },
+        { text: "467 - OS GUERREIROS SE PREPARAM", checked: false, observation: "" },
+        { text: "470 - NO GETSÊMANI", checked: false, observation: "" },
+        { text: "473 - MINHA PORÇÃO", checked: false, observation: "" },
+        { text: "474 - QUEM SOU EU, SENHOR", checked: false, observation: "" },
+        { text: "475 - AINDA UMA VEZ (AGEU)?", checked: false, observation: "" },
+        { text: "477 - SEMPRE VOU LEMBRAR", checked: false, observation: "" },
+        { text: "483 - CHEGOU O TEMPO DE PENSAR", checked: false, observation: "" },
+        { text: "492 - ELE VOLTARÁ, SIM, ELE VOLTARÁ", checked: false, observation: "" },
+        { text: "507 - O SOL ESCURECERÁ", checked: false, observation: "" },
+        { text: "527 - REGOZIJAI-VOS *", checked: false, observation: "" },
+        { text: "547 - Ó VEM LOGO, JESUS", checked: false, observation: "" },
+        { text: "552 - PÁTRIA MINHA", checked: false, observation: "" },
+        { text: "553 - VEM! MARANATA, JESUS VEM!", checked: false, observation: "" },
+        { text: "557 - ESTE MUNDO JAMAIS PODE ME SEPARAR", checked: false, observation: "" },
+        { text: "558 - VEM, JESUS CRISTO JÁ VEM", checked: false, observation: "" },
+        { text: "561 - OUVI COMO QUE A VOZ DE UMA GRANDE MULTIDÃO", checked: false, observation: "" },
+        { text: "568 - SENHOR, QUEM SÃO AQUELES", checked: false, observation: "" },
+        { text: "571 - O GRANDE DIA ESTÁ CHEGANDO", checked: false, observation: "" },
+        { text: "582 - CANTAREI AO AMOR DOS AMORES", checked: false, observation: "" },
+        { text: "592 - ALELUIA! MUITAS VOZES DE ANJOS", checked: false, observation: "" },
+        { text: "628 - SANTO É SEU NOME", checked: false, observation: "" },
+        { text: "649 - TE LOUVAMOS, SENHOR", checked: false, observation: "" },
+        { text: "651 - AMO AO SENHOR", checked: false, observation: "" },
+        { text: "666 - TAL QUAL ESTOU", checked: false, observation: "" },
+        { text: "667 - JUSTO ÉS, SENHOR", checked: false, observation: "" },
+        { text: "670 - SE PAZ, A MAIS DOCE", checked: false, observation: "" },
+        { text: "675 - NA ETERNIDADE", checked: false, observation: "" },
+        { text: "685 - PERFEITO AMOR EU CONHECI", checked: false, observation: "" },
+        { text: "687 - QUEM É COMO TU?", checked: false, observation: "" },
+        { text: "700 - ESTEVÃO AVISTOU (EU TAMBÉM QUERO VER)", checked: false, observation: "" },
+        { text: "704 - SENHOR, SE ESTIVESSES AQUI (LÁZARO)", checked: false, observation: "" },
+        { text: "705 - GRANDES SÃO, SENHOR, OS TEUS FEITOS! (GRATIDÃO)", checked: false, observation: "" },
+        { text: "706 - DESTE MUNDO ESCRAVO FUI (GRANDES COISAS FEZ O SENHOR POR NÓS)", checked: false, observation: "" },
+        { text: "707 - EU CONFIO EM TI, SENHOR", checked: false, observation: "" },
+        { text: "708 - OUVI NO CÉU (BODAS DO CORDEIRO)", checked: false, observation: "" },
+        { text: "709 - RESPLANDECE, Ó JERUSALÉM", checked: false, observation: "" },
+        { text: "710 - O MEU VIVER É CRISTO", checked: false, observation: "" },
+        { text: "728 - NOSSA GRATIDÃO", checked: false, observation: "" },
+        { text: "730 - SÓ TU NOS FAZES VENCEDORES", checked: false, observation: "" }
     ];
     const musicasAvulsas = []; // Lista inicial para avulsos
     const musicasCias = []; // Lista inicial para cias
+
+    const users = {
+        "Admin": "59135",
+        "Ezequiel": "5512",
+        "Alex": "Alex1515",
+        "convidado": "convidadoicmh"
+    };
 
     const musicList = document.getElementById('musicList');
     const newItemText = document.getElementById('newItemText');
@@ -228,6 +421,11 @@
     const coletaneaBtn = document.getElementById('coletaneaBtn');
     const avulsosBtn = document.getElementById('avulsosBtn');
     const ciasBtn = document.getElementById('ciasBtn');
+
+    const loginModal = document.getElementById('loginModal');
+    const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginError = document.getElementById('loginError');
 
     let isEditMode = false;
     let currentListKey = '';
@@ -251,7 +449,7 @@
         if (savedData) {
             currentListData = JSON.parse(savedData);
         } else {
-            currentListData = defaultData.map(text => ({ text, checked: false }));
+            currentListData = JSON.parse(JSON.stringify(defaultData));
         }
         sortList();
         renderList();
@@ -264,12 +462,17 @@
             const li = document.createElement('li');
             li.className = isEditMode ? 'editing' : '';
             li.innerHTML = `
-                <div class="list-item-content">
-                    <input type="checkbox" ${item.checked ? 'checked' : ''} data-index="${index}">
-                    <input type="text" value="${item.text}">
+                <div class="list-item-main">
+                    <div class="list-item-content">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} data-index="${index}" ${isEditMode ? '' : 'disabled'}>
+                        <input type="text" value="${item.text}" ${isEditMode ? '' : 'disabled'}>
+                    </div>
+                    <div class="item-actions">
+                        <button class="remove-btn" onclick="removeItem(${index})">&times;</button>
+                    </div>
                 </div>
-                <div class="item-actions">
-                    <button class="remove-btn" onclick="removeItem(${index})">&times;</button>
+                <div class="list-item-observation">
+                    <input type="text" class="observation" placeholder="Adicionar observação..." value="${item.observation}" ${isEditMode ? '' : 'disabled'}>
                 </div>
             `;
             musicList.appendChild(li);
@@ -280,7 +483,7 @@
     addBtn.addEventListener('click', () => {
         const text = newItemText.value.trim();
         if (text) {
-            currentListData.push({ text, checked: false });
+            currentListData.push({ text, checked: false, observation: "" });
             newItemText.value = '';
             sortList();
             renderList();
@@ -299,11 +502,13 @@
     // Função para salvar a lista e o estado das checkboxes
     function saveList() {
         const checkboxes = musicList.querySelectorAll('input[type="checkbox"]');
-        const textInputs = musicList.querySelectorAll('input[type="text"]');
+        const textInputs = musicList.querySelectorAll('.list-item-content input[type="text"]');
+        const observationInputs = musicList.querySelectorAll('.observation');
         
         currentListData.forEach((item, index) => {
             item.checked = checkboxes[index].checked;
             item.text = textInputs[index].value.trim();
+            item.observation = observationInputs[index].value.trim();
         });
         
         localStorage.setItem(currentListKey, JSON.stringify(currentListData));
@@ -313,12 +518,37 @@
 
     // Função para alternar o modo de edição
     editModeBtn.addEventListener('click', () => {
-        isEditMode = !isEditMode;
-        editModeBtn.textContent = isEditMode ? 'Finalizar Edição' : 'Editar';
-        musicList.querySelectorAll('li').forEach(li => {
-            li.classList.toggle('editing', isEditMode);
-        });
+        loginModal.style.display = "block";
     });
+
+    // Funções de login
+    window.login = function() {
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+
+        if (users[username] === password) {
+            isEditMode = true;
+            document.body.classList.add('logged-in');
+            renderList();
+            loginModal.style.display = "none";
+            loginError.style.display = "none";
+            alert("Login realizado com sucesso! O modo de edição está ativado.");
+        } else {
+            loginError.style.display = "block";
+        }
+    }
+
+    document.querySelector(".close-btn").onclick = function() {
+        loginModal.style.display = "none";
+        loginError.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == loginModal) {
+            loginModal.style.display = "none";
+            loginError.style.display = "none";
+        }
+    }
 
     // Event listeners para os botões de seleção de lista
     coletaneaBtn.addEventListener('click', () => {
@@ -345,6 +575,7 @@
     // Atribuindo as funções ao escopo global para serem acessadas pelo onclick
     window.removeItem = removeItem;
     window.saveList = saveList;
+    window.renderList = renderList;
 
     // Carrega a última lista salva ao carregar a página
     const lastListKey = localStorage.getItem('lastListKey');
