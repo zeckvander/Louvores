@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista Interativa de Músicas</title>
+    <title>Lista de Louvores</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
@@ -192,11 +192,12 @@
 <body>
 
 <div class="container">
-    <h1>Lista de Músicas</h1>
+    <h1>Lista de Louvores</h1>
 
     <div class="list-selection">
         <button id="coletaneaBtn">Coletânea</button>
         <button id="avulsosBtn">Avulsos</button>
+        <button id="ciasBtn">Cias</button>
     </div>
 
     <div class="header-actions">
@@ -206,7 +207,7 @@
     <ul id="musicList"></ul>
 
     <div class="add-section">
-        <input type="text" id="newItemText" placeholder="Adicionar nova música...">
+        <input type="text" id="newItemText" placeholder="Adicionar novo louvor...">
         <button id="addBtn">Adicionar</button>
     </div>
 
@@ -218,6 +219,7 @@
         "003 - CLAMO A TI", "004 - QUANDO TE PROSTRARES", "005 - CLAMANDO ESTOU", "021 - NESTA HORA DE CLAMOR", "034 - QUANDO BUSCAMOS", "055 - SENHOR, MEU DEUS E PAI", "057 - EM FERVENTE ORAÇÃO", "073 - DEUS ESTÁ NO TEMPLO", "077 - VEM, VISITA TUA IGREJA", "079 - DEUS ESTÁ PRESENTE ENTRE PECADORES COMO NÓS", "087 - MEU PECADO RESGATADO", "096 - COM A MINHA VOZ CLAMO AO SENHOR (SALMO 142)", "105 - PERDIDO FOI QUE ELE ME ENCONTROU", "110 - OH! QUÃO CEGO ANDEI E PERDIDO VAGUEI", "121 - TUDO, Ó CRISTO, A TI ENTREGO", "139 - NÃO SEI POR QUE DE DEUS O AMOR", "168 - TU ÉS FIEL, SENHOR", "178 - O DEUS A QUEM SERVIMOS", "180 - ENCONTREI O GRANDE AMOR", "181 - EM TI EU ENCONTRO, Ó DEUS, TODA PAZ", "185 - JESUS, SENHOR, ME CHEGO A TI (EU VENHO COMO ESTOU)", "196 - O GRANDE AMOR DO MEU SENHOR", "197 - HOJE QUERO SOMENTE AGRADECER", "207 - DEUS ENVIOU SEU FILHO AMADO", "212 - RUDE CRUZ", "223 - ONDE ESTÁ O CORDEIRO?", "309 - OH! POR QUE DUVIDAR?", "310 - MESTRE, O MAR SE REVOLTA", "345 - EM NADA PONHO A MINHA FÉ", "347 - FIRME NAS PROMESSAS", "365 - NÃO TEMAS, POIS TE ESCOLHI (QUANDO PELAS ÁGUAS)", "378 - CONFIA E ORA", "379 - ALGEMADO POR UM PESO", "380 - POSSO SENTIR O SEU TOQUE EM MIM (GLORIFICA)", "381 - MEU DEUS VENCE BATALHAS", "382 - JÁ CHEGUEI ATÉ AQUI (VITÓRIAS)", "383 - LÁ ONDE EU NÃO POSSO VER (A ORAÇÃO)", "387 - SONDA-ME, Ó DEUS", "396 - ABBA PAI", "400 - EU QUERO SER, SENHOR AMADO", "401 - COMO TU QUERES", "423 - Ó PASTOR DE ISRAEL", "431 - CRISTO JÁ NOS PREPAROU", "436 - ESPÍRITO DO TRINO DEUS", "444 - DESEJEI ARDENTEMENTE", "447 - SENHOR, GUIA-NOS", "454 - SENHOR, MEU DEUS, O QUE DIREI DE TI? (SAUDE ESPIRITUAL)", "455 - QUANTO MAIS EU TE CONHEÇO (CAMINHO FELIZ)", "461 - TU, Ó SENHOR, TU ÉS TÃO PURO DE OLHOS (AVIVA A TUA OBRA)", "463 - VEM, SENHOR, VIŞITA TUA VINHA", "467 - OS GUERREIROS SE PREPARAM", "470 - NO GETSÊMANI", "473 - MINHA PORÇÃO", "474 - QUEM SOU EU, SENHOR", "475 - AINDA UMA VEZ (AGEU)?", "477 - SEMPRE VOU LEMBRAR", "483 - CHEGOU O TEMPO DE PENSAR", "492 - ELE VOLTARÁ, SIM, ELE VOLTARÁ", "507 - O SOL ESCURECERÁ", "527 - REGOZIJAI-VOS *", "547 - Ó VEM LOGO, JESUS", "552 - PÁTRIA MINHA", "553 - VEM! MARANATA, JESUS VEM!", "557 - ESTE MUNDO JAMAIS PODE ME SEPARAR", "558 - VEM, JESUS CRISTO JÁ VEM", "561 - OUVI COMO QUE A VOZ DE UMA GRANDE MULTIDÃO", "568 - SENHOR, QUEM SÃO AQUELES", "571 - O GRANDE DIA ESTÁ CHEGANDO", "582 - CANTAREI AO AMOR DOS AMORES", "592 - ALELUIA! MUITAS VOZES DE ANJOS", "628 - SANTO É SEU NOME", "649 - TE LOUVAMOS, SENHOR", "651 - AMO AO SENHOR", "666 - TAL QUAL ESTOU", "667 - JUSTO ÉS, SENHOR", "670 - SE PAZ, A MAIS DOCE", "675 - NA ETERNIDADE", "685 - PERFEITO AMOR EU CONHECI", "687 - QUEM É COMO TU?", "700 - ESTEVÃO AVISTOU (EU TAMBÉM QUERO VER)", "704 - SENHOR, SE ESTIVESSES AQUI (LÁZARO)", "705 - GRANDES SÃO, SENHOR, OS TEUS FEITOS! (GRATIDÃO)", "706 - DESTE MUNDO ESCRAVO FUI (GRANDES COISAS FEZ O SENHOR POR NÓS)", "707 - EU CONFIO EM TI, SENHOR", "708 - OUVI NO CÉU (BODAS DO CORDEIRO)", "709 - RESPLANDECE, Ó JERUSALÉM", "710 - O MEU VIVER É CRISTO", "728 - NOSSA GRATIDÃO", "730 - SÓ TU NOS FAZES VENCEDORES"
     ];
     const musicasAvulsas = []; // Lista inicial para avulsos
+    const musicasCias = []; // Lista inicial para cias
 
     const musicList = document.getElementById('musicList');
     const newItemText = document.getElementById('newItemText');
@@ -225,15 +227,33 @@
     const editModeBtn = document.getElementById('editModeBtn');
     const coletaneaBtn = document.getElementById('coletaneaBtn');
     const avulsosBtn = document.getElementById('avulsosBtn');
+    const ciasBtn = document.getElementById('ciasBtn');
 
     let isEditMode = false;
     let currentListKey = '';
     let currentListData = [];
 
+    // Função para ordenar a lista por texto
+    function sortList() {
+        currentListData.sort((a, b) => {
+            const textA = a.text.toUpperCase();
+            const textB = b.text.toUpperCase();
+            if (textA < textB) return -1;
+            if (textA > textB) return 1;
+            return 0;
+        });
+    }
+
     // Função para carregar uma lista específica
     function loadList(listKey, defaultData) {
         currentListKey = listKey;
-        currentListData = JSON.parse(localStorage.getItem(listKey)) || defaultData.map(text => ({ text, checked: false }));
+        const savedData = localStorage.getItem(listKey);
+        if (savedData) {
+            currentListData = JSON.parse(savedData);
+        } else {
+            currentListData = defaultData.map(text => ({ text, checked: false }));
+        }
+        sortList();
         renderList();
     }
 
@@ -262,6 +282,7 @@
         if (text) {
             currentListData.push({ text, checked: false });
             newItemText.value = '';
+            sortList();
             renderList();
         }
     });
@@ -286,6 +307,7 @@
         });
         
         localStorage.setItem(currentListKey, JSON.stringify(currentListData));
+        localStorage.setItem('lastListKey', currentListKey);
         alert('Lista salva com sucesso!');
     }
 
@@ -303,12 +325,21 @@
         loadList('coletaneaListItems', musicasColetanea);
         coletaneaBtn.classList.add('active');
         avulsosBtn.classList.remove('active');
+        ciasBtn.classList.remove('active');
     });
 
     avulsosBtn.addEventListener('click', () => {
         loadList('avulsosListItems', musicasAvulsas);
         avulsosBtn.classList.add('active');
         coletaneaBtn.classList.remove('active');
+        ciasBtn.classList.remove('active');
+    });
+
+    ciasBtn.addEventListener('click', () => {
+        loadList('ciasListItems', musicasCias);
+        ciasBtn.classList.add('active');
+        coletaneaBtn.classList.remove('active');
+        avulsosBtn.classList.remove('active');
     });
 
     // Atribuindo as funções ao escopo global para serem acessadas pelo onclick
@@ -316,11 +347,13 @@
     window.saveList = saveList;
 
     // Carrega a última lista salva ao carregar a página
-    const lastListKey = localStorage.getItem('lastListKey') || 'coletaneaListItems';
-    if (lastListKey === 'coletaneaListItems') {
-        coletaneaBtn.click();
-    } else {
+    const lastListKey = localStorage.getItem('lastListKey');
+    if (lastListKey === 'avulsosListItems') {
         avulsosBtn.click();
+    } else if (lastListKey === 'ciasListItems') {
+        ciasBtn.click();
+    } else {
+        coletaneaBtn.click();
     }
 </script>
 
