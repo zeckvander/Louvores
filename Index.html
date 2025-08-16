@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Interativa de Músicas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        .list-item-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        .list-item-content input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.3);
+        }
+        .list-item-content input[type="text"] {
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            width: 100%;
+        }
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .edit-btn, .remove-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        .edit-btn {
+            color: #007bff;
+        }
+        .remove-btn {
+            color: #dc3545;
+        }
+        .add-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        #newItemText {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #addBtn {
+            padding: 10px 15px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #addBtn:hover {
+            background-color: #218838;
+        }
+        .save-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .save-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Lista de Músicas</h1>
+
+    <ul id="musicList"></ul>
+
+    <div class="add-section">
+        <input type="text" id="newItemText" placeholder="Adicionar nova música...">
+        <button id="addBtn">Adicionar</button>
+    </div>
+
+    <button class="save-btn" onclick="saveList()">Salvar</button>
+</div>
+
+<script>
+    const musicas = [
+        "003 - CLAMO A TI",
+        "004 - QUANDO TE PROSTRARES",
+        "005 - CLAMANDO ESTOU",
+        "021 - NESTA HORA DE CLAMOR",
+        "034 - QUANDO BUSCAMOS",
+        "055 - SENHOR, MEU DEUS E PAI",
+        "057 - EM FERVENTE ORAÇÃO",
+        "073 - DEUS ESTÁ NO TEMPLO",
+        "077 - VEM, VISITA TUA IGREJA",
+        "079 - DEUS ESTÁ PRESENTE ENTRE PECADORES COMO NÓS",
+        "087 - MEU PECADO RESGATADO",
+        "096 - COM A MINHA VOZ CLAMO AO SENHOR (SALMO 142)",
+        "105 - PERDIDO FOI QUE ELE ME ENCONTROU",
+        "110 - OH! QUÃO CEGO ANDEI E PERDIDO VAGUEI",
+        "121 - TUDO, Ó CRISTO, A TI ENTREGO",
+        "139 - NÃO SEI POR QUE DE DEUS O AMOR",
+        "168 - TU ÉS FIEL, SENHOR",
+        "178 - O DEUS A QUEM SERVIMOS",
+        "180 - ENCONTREI O GRANDE AMOR",
+        "181 - EM TI EU ENCONTRO, Ó DEUS, TODA PAZ",
+        "185 - JESUS, SENHOR, ME CHEGO A TI (EU VENHO COMO ESTOU)",
+        "196 - O GRANDE AMOR DO MEU SENHOR",
+        "197 - HOJE QUERO SOMENTE AGRADECER",
+        "207 - DEUS ENVIOU SEU FILHO AMADO",
+        "212 - RUDE CRUZ",
+        "223 - ONDE ESTÁ O CORDEIRO?",
+        "309 - OH! POR QUE DUVIDAR?",
+        "310 - MESTRE, O MAR SE REVOLTA",
+        "345 - EM NADA PONHO A MINHA FÉ",
+        "347 - FIRME NAS PROMESSAS",
+        "365 - NÃO TEMAS, POIS TE ESCOLHI (QUANDO PELAS ÁGUAS)",
+        "378 - CONFIA E ORA",
+        "379 - ALGEMADO POR UM PESO",
+        "380 - POSSO SENTIR O SEU TOQUE EM MIM (GLORIFICA)",
+        "381 - MEU DEUS VENCE BATALHAS",
+        "382 - JÁ CHEGUEI ATÉ AQUI (VITÓRIAS)",
+        "383 - LÁ ONDE EU NÃO POSSO VER (A ORAÇÃO)",
+        "387 - SONDA-ME, Ó DEUS",
+        "396 - ABBA PAI",
+        "400 - EU QUERO SER, SENHOR AMADO",
+        "401 - COMO TU QUERES",
+        "423 - Ó PASTOR DE ISRAEL",
+        "431 - CRISTO JÁ NOS PREPAROU",
+        "436 - ESPÍRITO DO TRINO DEUS",
+        "444 - DESEJEI ARDENTEMENTE",
+        "447 - SENHOR, GUIA-NOS",
+        "454 - SENHOR, MEU DEUS, O QUE DIREI DE TI? (SAUDE ESPIRITUAL)",
+        "455 - QUANTO MAIS EU TE CONHEÇO (CAMINHO FELIZ)",
+        "461 - TU, Ó SENHOR, TU ÉS TÃO PURO DE OLHOS (AVIVA A TUA OBRA)",
+        "463 - VEM, SENHOR, VIŞITA TUA VINHA",
+        "467 - OS GUERREIROS SE PREPARAM",
+        "470 - NO GETSÊMANI",
+        "473 - MINHA PORÇÃO",
+        "474 - QUEM SOU EU, SENHOR",
+        "475 - AINDA UMA VEZ (AGEU)?",
+        "477 - SEMPRE VOU LEMBRAR",
+        "483 - CHEGOU O TEMPO DE PENSAR",
+        "492 - ELE VOLTARÁ, SIM, ELE VOLTARÁ",
+        "507 - O SOL ESCURECERÁ",
+        "527 - REGOZIJAI-VOS *",
+        "547 - Ó VEM LOGO, JESUS",
+        "552 - PÁTRIA MINHA",
+        "553 - VEM! MARANATA, JESUS VEM!",
+        "557 - ESTE MUNDO JAMAIS PODE ME SEPARAR",
+        "558 - VEM, JESUS CRISTO JÁ VEM",
+        "561 - OUVI COMO QUE A VOZ DE UMA GRANDE MULTIDÃO",
+        "568 - SENHOR, QUEM SÃO AQUELES",
+        "571 - O GRANDE DIA ESTÁ CHEGANDO",
+        "582 - CANTAREI AO AMOR DOS AMORES",
+        "592 - ALELUIA! MUITAS VOZES DE ANJOS",
+        "628 - SANTO É SEU NOME",
+        "649 - TE LOUVAMOS, SENHOR",
+        "651 - AMO AO SENHOR",
+        "666 - TAL QUAL ESTOU",
+        "667 - JUSTO ÉS, SENHOR",
+        "670 - SE PAZ, A MAIS DOCE",
+        "675 - NA ETERNIDADE",
+        "685 - PERFEITO AMOR EU CONHECI",
+        "687 - QUEM É COMO TU?",
+        "700 - ESTEVÃO AVISTOU (EU TAMBÉM QUERO VER)",
+        "704 - SENHOR, SE ESTIVESSES AQUI (LÁZARO)",
+        "705 - GRANDES SÃO, SENHOR, OS TEUS FEITOS! (GRATIDÃO)",
+        "706 - DESTE MUNDO ESCRAVO FUI (GRANDES COISAS FEZ O SENHOR POR NÓS)",
+        "707 - EU CONFIO EM TI, SENHOR",
+        "708 - OUVI NO CÉU (BODAS DO CORDEIRO)",
+        "709 - RESPLANDECE, Ó JERUSALÉM",
+        "710 - O MEU VIVER É CRISTO",
+        "728 - NOSSA GRATIDÃO",
+        "730 - SÓ TU NOS FAZES VENCEDORES"
+    ];
+
+    const musicList = document.getElementById('musicList');
+    const newItemText = document.getElementById('newItemText');
+    const addBtn = document.getElementById('addBtn');
+
+    // Carrega a lista salva do localStorage
+    let savedList = JSON.parse(localStorage.getItem('musicListItems')) || musicas.map(item => ({ text: item, checked: false }));
+
+    // Função para renderizar a lista
+    function renderList() {
+        musicList.innerHTML = '';
+        savedList.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="list-item-content">
+                    <input type="checkbox" ${item.checked ? 'checked' : ''} data-index="${index}">
+                    <input type="text" value="${item.text}">
+                </div>
+                <div class="item-actions">
+                    <button class="edit-btn" onclick="toggleEdit(${index})">&#9998;</button>
+                    <button class="remove-btn" onclick="removeItem(${index})">&times;</button>
+                </div>
+            `;
+            musicList.appendChild(li);
+        });
+    }
+
+    // Função para adicionar um novo item
+    addBtn.addEventListener('click', () => {
+        const text = newItemText.value.trim();
+        if (text) {
+            savedList.push({ text: text, checked: false });
+            newItemText.value = '';
+            renderList();
+        }
+    });
+
+    // Função para remover um item
+    function removeItem(index) {
+        savedList.splice(index, 1);
+        renderList();
+        saveList();
+    }
+
+    // Função para salvar a lista e o estado das checkboxes
+    function saveList() {
+        const checkboxes = musicList.querySelectorAll('input[type="checkbox"]');
+        const textInputs = musicList.querySelectorAll('input[type="text"]');
+        
+        savedList.forEach((item, index) => {
+            item.checked = checkboxes[index].checked;
+            item.text = textInputs[index].value.trim();
+        });
+        
+        localStorage.setItem('musicListItems', JSON.stringify(savedList));
+        alert('Lista salva com sucesso!');
+    }
+
+    // Atribuindo as funções ao escopo global para serem acessadas pelo onclick
+    window.removeItem = removeItem;
+    window.saveList = saveList;
+
+    // Renderiza a lista inicial
+    renderList();
+
+</script>
+
+</body>
+</html>
